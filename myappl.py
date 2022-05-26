@@ -15,6 +15,7 @@ from turtle import bgcolor
 ########## ---- MACHINE LEARNING MODEL
 import sklearn
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import average_precision_score
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
@@ -127,6 +128,7 @@ def signin():
                     query = "INSERT INTO patientrecords (firstname, middlename, surname, gender, age, occupation, maritalstatus, telephone, address, nationalid) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                     mycursor.execute(query, (firstname, middlename, surname, gender, age, occupation, maritalstatus, telephone, address, nationalid))
                     mydb.commit()
+                    tabControl.select(1)
 
                 else:
                     err.config(fg='red')   # foreground color
@@ -448,7 +450,7 @@ def signin():
 
                 Prediction_result = ('Predicted Disease: ', model.predict([[Headache,Runny_Nose,Sneezing,Sore_Throat,Fever,Chills,Body_Ache,Abdominal_Pain,Poor_Appetite,Rash,Conjunctivitis,Sweating,Nausea,Vomiting,Diarrhea]]))
                 label_Prediction = Label(tab3, text=prediction, bg='#57a1f8',font=('Microsoft YaHei UI Light',11))
-                label_Prediction.grid(row=19, column=1, padx=5, pady=3)
+                label_Prediction.grid(row=8, column=1, padx=5, pady=3)
 
                 prediction = model.predict([[Headache,Runny_Nose,Sneezing,Sore_Throat,Fever,Chills,Body_Ache,Abdominal_Pain,Poor_Appetite,Rash,Conjunctivitis,Sweating,Nausea,Vomiting,Diarrhea]])
 
@@ -462,6 +464,9 @@ def signin():
 
                 global surname
                 surname = t3.get()
+
+                global age
+                age = t4.get()
 
                 # global diagnosis
                 # diagnosis = tostring(arr)
@@ -492,9 +497,9 @@ def signin():
 
                 print(s)
 
-                sql = "INSERT INTO diagnosisrecords(patientid, firstname, middlename, surname, disease, severity) VALUES (%s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO diagnosisrecords(patientid, firstname, middlename, surname, age, disease, severity) VALUES (%s, %s, %s, %s, %s, %s, %s)"
                 # val = (firstname, middlename, surname, diagnosis, Severity)
-                mycursor.execute(sql, (s, firstname, middlename, surname, diagnosis, Severity))
+                mycursor.execute(sql, (s, firstname, middlename, surname, age, diagnosis, Severity))
                 mydb.commit()  
                 # regpatient()  
 
@@ -504,29 +509,29 @@ def signin():
                 # Prescriptions and Advice
                 if (prediction == 'Malaria'):
                     Result = ('Please consider prescibing the following for the patient:\n1: Aralen/tab\n2: Qualaquin/tab\n3: Plaquenil/tab\n4: Mefloquine\n\n You can instruct the patient to do the following:\nPlease do not sleep in open air and cover your full skin\n')
-                    Result0 = Label(tab4, text=Result, bg='#57a1f8',fg='black')
+                    Result0 = Label(tab3, text=Result, bg='#57a1f8',fg='black')
                     Result0.grid(row=11, column=1, padx=5, pady=3)
                 elif (prediction == 'Typhoid'):
                     Result = ('Please consider prescibing the following for the patient:\n1: Chloramphenicol/tab\n2: Amoxicillin/tab\n3: Ciprofloxacin/tab\n4: Azithromycin/tab\n\nYou can instruct the patient to do the following:\nPlease do complete bed rest and take soft Diet\n')
-                    Result0 = Label(tab4, text=Result, bg='orange')
+                    Result0 = Label(tab3, text=Result, bg='orange')
                     Result0.grid(row=1, column=1, padx=5, pady=3)
                 elif (prediction == 'Cold'):
                     Result = ('Please consider prescibing the following for the patient:\n1: Tylenol/tab\n2: Panadol/tab\n3: Nasal Spray\n\nYou can instruct the patient to do the following:\nPlease wear warm clothes\n')
-                    Result0 = Label(tab4, text=Result, bg='orange')
+                    Result0 = Label(tab3, text=Result, bg='orange')
                     Result0.grid(row=1, column=1, padx=5, pady=3)
                 elif (prediction == 'Flu'):
                     Result = ('Please consider prescibing the following for the patient:\n1: Tamiflu/tab\n2: Panadol/tab\n3: Zanamivir/tab\n\nYou can instruct the patient to do the following:\nPlease take a warm bath and do salt gargling\n')
-                    Result0 = Label(tab4, text=Result, bg='orange')
+                    Result0 = Label(tab3, text=Result, bg='orange')
                     Result0.grid(row=1, column=1, padx=5, pady=3)
                 elif (prediction == 'Measles'):
                     Result = ('Please consider prescibing the following for the patient:\n1: Tylenol/tab\n2: Aleve/tab\n3: Advil/tab\n4: Vitamin A\n\nYou can instruct the patient to do the following:\nPlease Get rest and use more liquid\n')
-                    Result0 = Label(tab4, text=Result, bg='orange')
+                    Result0 = Label(tab3, text=Result, bg='orange')
                     Result0.grid(row=1, column=1, padx=5, pady=3)
                 elif (prediction == 'Invalid Input'):
                     Result = ('Please consider specify valid input and try againd\n')
-                    Result0 = Label(tab4, text=Result, bg='orange')
+                    Result0 = Label(tab3, text=Result, bg='orange')
                     Result0.grid(row=1, column=1, padx=5, pady=3)
-                        
+                tabControl.select(2)       
 
             my_button = Button(tab2, width=39,text="Diagnose Disease",bg='#57a1f8',fg='white',border=0, command=values)
             my_button.grid(row=17, column=1, padx=2, pady=3)
@@ -558,6 +563,7 @@ def signin():
 
             mydb.commit()
 
+
             # TYPHOID COUNT
             typhoid = 'Typhoid'
             slct = "SELECT COUNT(disease) FROM diagnosisrecords WHERE disease LIKE '%"+typhoid+"%'"
@@ -585,7 +591,7 @@ def signin():
             mydb.commit()
 
 
-            # FLU COUNT
+            # MEASLES COUNT
             measles = 'Measles'
             slct = "SELECT COUNT(disease) FROM diagnosisrecords WHERE disease LIKE '%"+flu+"%'"
             mycursor.execute(slct)
@@ -594,27 +600,183 @@ def signin():
             mydb.commit()
 
 
-            set['columns']= ('Disease', 'Total','Under 18')
+            # AGE COUNTS
+            # MALARIA COUNT UNDER 10
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age <= 10 and disease LIKE '%"+malaria+"%'"
+            mycursor.execute(slct)
+            malariab10 = mycursor.fetchone()
+
+            mydb.commit()
+
+
+            # MALARIA COUNT 11-18
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age <= 18 and disease LIKE '%"+malaria+"%'"
+            mycursor.execute(slct)
+            malaria18 = mycursor.fetchone()
+
+            mydb.commit()
+
+            # MALARIA COUNT OVER 18
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age > 18 and disease LIKE '%"+malaria+"%'"
+            mycursor.execute(slct)
+            malaria1835 = mycursor.fetchone()
+
+            mydb.commit()
+
+
+
+            # TYPHOID COUNT UNDER 10
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age <= 10 and disease LIKE '%"+typhoid+"%'"
+            mycursor.execute(slct)
+            typhb10 = mycursor.fetchone()
+
+            mydb.commit()
+
+
+            # TYPHOID COUNT 11-18
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age <= 18 and disease LIKE '%"+typhoid+"%'"
+            mycursor.execute(slct)
+            typh18 = mycursor.fetchone()
+
+            mydb.commit()
+
+            # TYPHOID COUNT OVER 18
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age > 18 and disease LIKE '%"+typhoid+"%'"
+            mycursor.execute(slct)
+            typh1835 = mycursor.fetchone()
+
+            mydb.commit()
+
+
+
+            # COLD COUNT UNDER 10
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age <= 10 and disease LIKE '%"+cold+"%'"
+            mycursor.execute(slct)
+            coldb10 = mycursor.fetchone()
+
+            mydb.commit()
+
+
+            # COLD COUNT 11-18
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age <= 18 and disease LIKE '%"+cold+"%'"
+            mycursor.execute(slct)
+            cold18 = mycursor.fetchone()
+
+            mydb.commit()
+
+            # COLD COUNT OVER 18
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age > 18 and disease LIKE '%"+cold+"%'"
+            mycursor.execute(slct)
+            cold1835 = mycursor.fetchone()
+
+            mydb.commit()
+
+
+            # FLU COUNT UNDER 10
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age <= 10 and disease LIKE '%"+flu+"%'"
+            mycursor.execute(slct)
+            flub10 = mycursor.fetchone()
+
+            mydb.commit()
+
+
+            # COLD COUNT 11-18
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age <= 18 and disease LIKE '%"+flu+"%'"
+            mycursor.execute(slct)
+            flu18 = mycursor.fetchone()
+
+            mydb.commit()
+
+            # FLU COUNT OVER 18
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age > 18 and disease LIKE '%"+flu+"%'"
+            mycursor.execute(slct)
+            flu1835 = mycursor.fetchone()
+
+            mydb.commit()
+
+
+
+
+            
+            # MSLS COUNT UNDER 10
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age <= 10 and disease LIKE '%"+measles+"%'"
+            mycursor.execute(slct)
+            mslsb10 = mycursor.fetchone()
+
+            mydb.commit()
+
+
+            # COLD COUNT 11-18
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age <= 18 and disease LIKE '%"+measles+"%'"
+            mycursor.execute(slct)
+            msls18 = mycursor.fetchone()
+
+            mydb.commit()
+
+            # FLU COUNT OVER 18
+            malaria = 'Malaria'
+
+            slct = "SELECT COUNT(age) FROM diagnosisrecords WHERE age > 18 and disease LIKE '%"+measles+"%'"
+            mycursor.execute(slct)
+            msls1835 = mycursor.fetchone()
+
+            mydb.commit()
+
+
+            set['columns']= ('Disease', 'Total','0-10', '11-18','19-35')
             set.column("#0", width=0,  stretch=NO)
-            set.column("Disease",anchor=CENTER, width=400)
-            set.column("Total",anchor=CENTER, width=400)
-            set.column("Under 18",anchor=CENTER, width=400)
+            set.column("Disease",anchor=CENTER, width=200)
+            set.column("Total",anchor=CENTER, width=200)
+            set.column("0-10",anchor=CENTER, width=200)
+            set.column("11-18",anchor=CENTER, width=200)
+            set.column("19-35",anchor=CENTER, width=200)
 
             set.heading("#0",text="",anchor=CENTER)
             set.heading("Disease",text="Disease",anchor=CENTER)
             set.heading("Total",text="Total",anchor=CENTER)
-            set.heading("Under 18",text="Under 18",anchor=CENTER)
+            set.heading("0-10",text="0-10",anchor=CENTER)
+            set.heading("11-18",text="11-18",anchor=CENTER)
+            set.heading("19-35",text="19-35",anchor=CENTER)
+
 
             set.insert(parent='',index='end',iid=0,text='',
-            values=('Malaria',malariast,malariast))
+            values=('Malaria',malariast,malariab10,malaria18,malaria1835))
             set.insert(parent='',index='end',iid=1,text='',
-            values=('Typhoid',typhoidst,typhoidst))
+            values=('Typhoid',typhoidst,typhb10,typh18,typh1835))
             set.insert(parent='',index='end',iid=2,text='',
-            values=('Cold',coldst,coldst))
+            values=('Cold',coldst,coldb10,cold18,cold1835))
             set.insert(parent='',index='end',iid=3,text='',
-            values=('Flu',flust,flust))
+            values=('Flu',flust,flub10,flu18,flu1835))
             set.insert(parent='',index='end',iid=4,text='',
-            values=('Measles',measlesst,measlesst))
+            values=('Measles',measlesst,mslsb10,msls18,msls1835))
 
             ws.mainloop()
 
@@ -712,7 +874,7 @@ def signin():
         label1 = Label(window, image = bg)
         label1.place(x = 0, y = 0)
 
-        mainlabel = Label(window, text='MEDEX DIAGNOSIS SYSTEM',font=('Microsoft YaHei UI Light',30),bg='#57a1f8',fg='white')
+        mainlabel = Label(window, text='MEDEX DIAGNOSIS SYSTEM',font=('Microsoft YaHei UI Light',30),fg='white')
         mainlabel.grid(row=0, column=0, padx=300, pady=10, rowspan=4, columnspan=6)
 
         # ,command=regpatient
